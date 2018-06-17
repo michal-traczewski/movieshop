@@ -1,0 +1,105 @@
+#site-container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+#navbar-inner {
+    max-width: 1200px;
+    margin: auto;
+}
+
+#navbar-inner label {
+    color: white;
+    font-weight: inherit !important;
+}
+
+#header-image {
+    max-width: 100%;
+    height: auto;
+}
+.film-box img {
+    float: left;
+    margin: 0px 20px;
+    height: 100px;
+    width: 100px;
+}
+
+.film-box .title {
+    font-size: 1.5em;
+    color: inherit;
+}
+
+.film-box .add-to-basket {
+    font-size: 1em;
+    float: right;
+}
+
+.film-box {
+    padding: 20px !important;
+    height: 140px !important;
+    margin: 20px 0 0 0 !important;
+    width: 49%;
+}
+
+.film-box--left {
+    float: left;
+}
+
+.film-box--right {
+    float: right;
+}
+
+#pager {
+    float: left;
+    width: 100%;
+}
+
+.film-box--detail img {
+    float: left;
+    margin: 0px 20px;
+    width: 300px;
+    height: 200px;
+}
+
+.film-box--detail .title {
+    font-size: 2em;
+    color: inherit;
+}
+
+.film-box--detail .description {
+    font-size: 1.5em;
+    color: inherit;
+}
+
+.film-box--detail .add-to-basket {
+    font-size: 1.5em;
+    float: right;
+}
+
+.film-box--detail {
+    padding: 20px !important;
+    height: 260px !important;
+    margin: 20px 0 0 0 !important;
+    width: 80%;
+}
+
+.order-details {
+    padding: 30px 0 0 0;
+}
+
+.my-orders {
+    padding: 30px 0 0 0;
+    max-width: 70%;
+}
+
+#btn-cancel-order {
+    float: right;
+    padding: 5%;
+}
+
+#BasketFooter {
+    font-size: 16px;
+    padding: 30px;
+    float: left;
+    width: 100%;
+}
