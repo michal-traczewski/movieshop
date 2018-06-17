@@ -5,7 +5,7 @@
         <h3><i>Results for: {{ $filter['searchPhrase'] }}</i></h3>
     @endif
     
-    @foreach($films as $film)hhhhh
+    @foreach($films as $film)
         <?php $position = (($loop->iteration % 2) == 0) ? 'film-box--right' : 'film-box--left'; ?>
         @include('partials.films.film_tile')
     @endforeach
