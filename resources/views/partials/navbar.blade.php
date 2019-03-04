@@ -20,7 +20,7 @@
                 @endif
             </ul>
             <form class="navbar-form navbar-right" action="" method="GET">
-                <input type="text" class="form-control" placeholder="Search" name="searchPhrase" value="<?=$searchPhrase?>">
+                <input type="text" class="form-control" placeholder="Search" name="searchPhrase" value="<?= isset($searchPhrase) ? $searchPhrase : '' ?>">
                 <button type="submit" class="btn btn-default">Submit</button>
             </form>
         </div>
