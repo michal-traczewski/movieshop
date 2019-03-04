@@ -5,10 +5,7 @@ namespace Movies\Services;
 use Illuminate\Support\Facades\DB;
 
 class FilmService
-{
-    const RECORDS_ON_PAGE = 10;
-    const RECORDS_ON_PAGE_DROPLIST_VALUES = [8,10,12,14,16,18,20];
-    
+{   
     public function getFilmById($id)
     {
         return DB::table('film')
@@ -76,30 +73,27 @@ class FilmService
     {
          $searchPhrase = isset($urlParams['searchPhrase']) ? $urlParams['searchPhrase'] : '';
         
-        if (isset($urlParams['recordsOnPage']) && in_array($urlParams['recordsOnPage'], self::RECORDS_ON_PAGE_DROPLIST_VALUES)){
-            $recordsOnPage = $urlParams['recordsOnPage'];
-        } else {
-            $recordsOnPage = self::RECORDS_ON_PAGE;
-        }
+//        if (isset($urlParams['recordsOnPage']) && in_array($urlParams['recordsOnPage'], self::RECORDS_ON_PAGE_DROPLIST_VALUES)){
+//            $recordsOnPage = $urlParams['recordsOnPage'];
+//        } else {
+//            $recordsOnPage = self::RECORDS_ON_PAGE;
+//        }
         
-        if (isset($urlParams['page']) && $urlParams['page']){
-            $pageNumber = $urlParams['page'];
-        } else {
-            $pageNumber = 1;
-        }
+// delete me!       
+//        if (isset($urlParams['page']) && $urlParams['page']){
+//            $pageNumber = $urlParams['page'];
+//        } else {
+//            $pageNumber = 1;
+//        }
         
-        $movieCount = DB::table('film')
-        ->leftJoin('language AS lang', 'film.language_id', 'lang.language_id')
-        ->where('description', 'like', '%' . $searchPhrase . '%')
-        ->orWhere('title', 'like', '%' . $searchPhrase . '%')
-        ->count();
+//        $movieCount = DB::table('film')
+//        ->leftJoin('language AS lang', 'film.language_id', 'lang.language_id')
+//        ->where('description', 'like', '%' . $searchPhrase . '%')
+//        ->orWhere('title', 'like', '%' . $searchPhrase . '%')
+//        ->count();
         
         return [
             'searchPhrase' => $searchPhrase,
-            'recordsOnPage' => $recordsOnPage,
-            'recordsOnPageDropList' => self::RECORDS_ON_PAGE_DROPLIST_VALUES,
-            'pageNumber' => $pageNumber,
-            'movieCount' => $movieCount
         ];
     }
 }

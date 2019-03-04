@@ -19,19 +19,10 @@
                     <li class="<?= $nav_selection == 'register' ? 'active' : '' ?> "><a href="/register">Register</a></li>
                 @endif
             </ul>
-            @if (isset($filter))
-                <form class="navbar-form navbar-right" action="" method="GET">
-                    <label for="sel1">Records on page:</label>
-                    <select id="sel1" class="form-control" name="recordsOnPage">
-                    @foreach ($filter['recordsOnPageDropList'] as $option)
-                        <option <?= $filter['recordsOnPage'] == $option ? "selected" : "" ?> >{{ $option }}</option>
-                    @endforeach
-                    </select>
-
-                    <input type="text" class="form-control" placeholder="Search" name="searchPhrase">
-                    <button type="submit" class="btn btn-default">Submit</button>
-                </form>
-            @endif
+            <form class="navbar-form navbar-right" action="" method="GET">
+                <input type="text" class="form-control" placeholder="Search" name="searchPhrase" value="<?=$searchPhrase?>">
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
         </div>
     </div>
 </nav>

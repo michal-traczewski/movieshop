@@ -4,15 +4,15 @@ namespace Movies\Http\Controllers;
 
 use Movies\Services\FilmService;
 use Movies\Services\OrderService;
+use Illuminate\Http\Request;
 use Auth;
 
 class IndexController extends Controller
 {
-    private $filmService, $orderService, $viewData;
+    private $orderService, $viewData;
     
     public function __construct()
     {
-        $this->filmService = new FilmService;
         $this->orderService = new OrderService;
         $this->viewData = ['nav_selection' => 'home'];
     }
@@ -20,19 +20,29 @@ class IndexController extends Controller
     private function assignUserData()
     {
         $user_id = (Auth::check()) ? Auth::user()->id : 0 ;        
-        $filter = $this->filmService->setFilmsListParams($_GET);
-        $films = $this->filmService->getFilteredList($filter);
-        $cart = $this->orderService->getCart($user_id);
-        
         $this->viewData['user_id'] = $user_id;
-        $this->viewData['filter'] = $filter;
-        $this->viewData['films'] = $films;
-        $this->viewData['cart'] = $cart;
+        $this->viewData['cart'] = $this->orderService->getCart($user_id);
     }
     
-    public function index()
+    public function index(Request $request)
     {
+
         $this->assignUserData();
+        
+        $searchPhrase = $request->input('searchPhrase') ?: '';
+        
+        if ($searchPhrase) {
+            $films = \Movies\Film::where('title', 'like', '%' .$searchPhrase. '%')
+                    ->orWhere('description', 'like', '%' .$searchPhrase. '%')
+                    ->paginate(FILMS_ON_PAGE);
+        } else {
+            $films = \Movies\Film::paginate(FILMS_ON_PAGE);
+        }
+        
+        $films->withPath('?searchPhrase=' .$searchPhrase);
+        
+        $this->viewData['films'] = $films;
+        $this->viewData['searchPhrase'] = $searchPhrase;
         
         return view('index', $this->viewData);
     }
