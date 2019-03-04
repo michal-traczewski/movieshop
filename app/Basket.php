@@ -1,6 +1,6 @@
 <?php
 
-namespace Movies;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,6 +16,6 @@ class Basket extends Model
     
     public function films()
     {
-        return $this->belongsToMany('Movies\Film', 'basket_film', 'basket_id', 'film_id');
+        return $this->belongsToMany('App\Film', 'basket_film', 'basket_id', 'film_id');
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Movies\Http\Controllers;
+namespace App\Http\Controllers;
 
-use Movies\Services\UserService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 use Auth;

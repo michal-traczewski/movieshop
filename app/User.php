@@ -1,6 +1,6 @@
 <?php
 
-namespace Movies;
+namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -29,6 +29,6 @@ class User extends Authenticatable
     
     public function orders()
     {
-        return $this->hasMany('\Movies\Order');
+        return $this->hasMany('\App\Order');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Movies;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,6 +13,6 @@ class DctOrderStatus extends Model
     
     public function orders()
     {
-        return $this->hasMany('\Movies\Order', 'status');
+        return $this->hasMany('\App\Order', 'status');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Movies;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,16 +16,16 @@ class Order extends Model
     
     public function statuses()
     {
-        return $this->belongsTo('\Movies\DctOrderStatus', 'status');
+        return $this->belongsTo('\App\DctOrderStatus', 'status');
     }
     
     public function user()
     {
-        return $this->belongsTo('\Movies\User');
+        return $this->belongsTo('\App\User');
     }
     
     public function films()
     {
-        return $this->belongsToMany('\Movies\Film', 'order_film', 'order_id', 'film_id');
+        return $this->belongsToMany('\App\Film', 'order_film', 'order_id', 'film_id');
     }
 }

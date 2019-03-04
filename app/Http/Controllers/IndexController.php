@@ -1,9 +1,9 @@
 <?php
 
-namespace Movies\Http\Controllers;
+namespace App\Http\Controllers;
 
-use Movies\Services\FilmService;
-use Movies\Services\OrderService;
+use App\Services\FilmService;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -32,11 +32,11 @@ class IndexController extends Controller
         $searchPhrase = $request->input('searchPhrase') ?: '';
         
         if ($searchPhrase) {
-            $films = \Movies\Film::where('title', 'like', '%' .$searchPhrase. '%')
+            $films = \App\Film::where('title', 'like', '%' .$searchPhrase. '%')
                     ->orWhere('description', 'like', '%' .$searchPhrase. '%')
                     ->paginate(FILMS_ON_PAGE);
         } else {
-            $films = \Movies\Film::paginate(FILMS_ON_PAGE);
+            $films = \App\Film::paginate(FILMS_ON_PAGE);
         }
         
         $films->withPath('?searchPhrase=' .$searchPhrase);

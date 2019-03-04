@@ -1,6 +1,6 @@
 <?php
 
-namespace Movies;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,7 +27,7 @@ class Film extends Model
     public function baskets()
     {
         return $this->belongsToMany(
-                'Movies\Basket',
+                'App\Basket',
                 'basket_film',
                 'film_id', 'basket_id'
                 );
@@ -36,7 +36,7 @@ class Film extends Model
     public function orders()
     {
         return $this->belongsToMany(
-                '\Movies\Order',
+                '\App\Order',
                 'order_film',
                 'film_id',
                 'order_id'
@@ -46,7 +46,7 @@ class Film extends Model
     public function language()
     {
         return $this->belongsTo(
-                '\Movies\Language',
+                '\App\Language',
                 'language_id',
                 'language_id'
                 );
@@ -55,7 +55,7 @@ class Film extends Model
     public function original_language()
     {
         return $this->belongsTo(
-                '\Movies\Language',
+                '\App\Language',
                 'original_language_id',
                 'language_id'
                 );

@@ -1,8 +1,8 @@
 <?php
 
-namespace Movies\Http\Controllers;
+namespace App\Http\Controllers;
 
-use Movies\Services\OrderService;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Auth;
