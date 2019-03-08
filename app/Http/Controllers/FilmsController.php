@@ -2,31 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\FilmService;
-use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Auth;
 
 class FilmsController extends Controller
 {    
-    private $filmService, $orderService;
+    private $viewData;
+    private $orderService;
     
     public function __construct()
     {
-        $this->filmService = new FilmService;
-        $this->orderService = new OrderService;
+        // TODO
+    }
+    
+    private function assignUserData()
+    {
+        $user_id = (Auth::check()) ? Auth::user()->id : 0 ;     
+        $basket = \App\Basket::where('user_id', '=', $user_id)->first();
+        $filmsInBasket = [];
+        
+        if ($basket) {
+            foreach($basket->films as $film) {
+                $filmsInBasket [] = $film->film_id;
+            }    
+        }
+        
+        $this->viewData['films_in_basket'] = $filmsInBasket;
+        $this->viewData['user_id'] = $user_id;
     }
     
     public function details(Request $request, $id)
     {     
-        $film = $this->filmService->getFilmById($id);
-        $user_id = (Auth::check()) ? Auth::user()->id : 0 ;
-        $cart = $this->orderService->getCart($user_id);
+        $this->assignUserData();
         
-        return view('film_details', [
-            'film' => $film,
-            'user_id' => $user_id,
-            'cart' => $cart
-                ]);
+        $this->viewData['film'] = \App\Film::find($id);
+        
+        return view('film_details', $this->viewData);
     }
 }

@@ -2,26 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\FilmService;
-use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Auth;
 
 class IndexController extends Controller
 {
-    private $orderService, $viewData;
+    private $viewData;
     
     public function __construct()
     {
-        $this->orderService = new OrderService;
         $this->viewData = ['nav_selection' => 'home'];
     }
     
     private function assignUserData()
     {
-        $user_id = (Auth::check()) ? Auth::user()->id : 0 ;        
+        $user_id = (Auth::check()) ? Auth::user()->id : 0;
+        $basket = \App\Basket::where('user_id', '=', $user_id)->first();
+        $filmsInBasket = [];
+        
+        if ($basket) {
+            foreach($basket->films as $film) {
+                $filmsInBasket [] = $film->film_id;
+            }    
+        }
+        
         $this->viewData['user_id'] = $user_id;
-        $this->viewData['cart'] = $this->orderService->getCart($user_id);
+        $this->viewData['films_in_basket'] = $filmsInBasket;
     }
     
     public function index(Request $request)

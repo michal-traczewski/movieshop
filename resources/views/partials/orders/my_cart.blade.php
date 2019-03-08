@@ -1,8 +1,8 @@
-@if (count($cart) == 0)
+@if (count($films) == 0)
     <h3> Nothing to display </h3>
 @else
     <?php $price = 0; ?>
-    @foreach ($cart as $film)
+    @foreach ($films as $film)
         <?php $price = $price + $film->price; ?>
         <?php $position = (($loop->iteration % 2) == 0) ? 'film-box--right' : 'film-box--left'; ?>
         @include('partials.films.film_tile')

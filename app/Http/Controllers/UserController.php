@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\UserService;
 use Illuminate\Http\Request;
 
 use Auth;
@@ -13,17 +12,18 @@ class UserController extends Controller
     
     public function __construct()
     {
-        $this->service = new UserService;
         $this->viewData = ['nav_selection' => 'profile'];
     }
     
     private function assignUser()
     {
         $user_id = (Auth::check()) ? Auth::user()->id : 0 ;
-        $user = $this->service->getUser($user_id);
+        $user = \App\User::find($user_id);
         
         $this->viewData['user_id'] = $user_id;
         $this->viewData['user'] = $user;
+        
+        return $user_id;
     }
 
     public function editUser()
@@ -31,8 +31,7 @@ class UserController extends Controller
         $this->assignUser();
 
         if (!$this->viewData['user']){
-            $this->viewData['message'] = 'Nothing to display';
-            return view('message', $this->viewData);
+            return view('message', 'Nothing to display');
         } else {
             return view('my_profile', $this->viewData);
         }
@@ -49,13 +48,19 @@ class UserController extends Controller
             'phoneNumber' => 'required|numeric',
         ]);
         
-        $this->assignUser();
+        $user_id = $this->assignUser();
         
-        if($this->service->updateUser($this->viewData['user_id'], $request->all()) !== 1){
-            $this->viewData['message'] = 'Failed to update user profile';
-        } else {
-            $this->viewData['message'] = 'You have succesfully updated your profile';
-        }
+        $user = \App\User::find($user_id);
+        $user->first_name = $request->firstName;
+        $user->name = $request->lastName;
+        $user->address = $request->address;
+        $user->city = $request->city;
+        $user->postal_code = $request->postalCode;
+        $user->phone = $request->phoneNumber;
+        $user->save();
+        
+        $this->viewData['message'] = 
+                'You have succesfully updated your profile';
         
         return view('message', $this->viewData);
     }

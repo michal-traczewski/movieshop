@@ -18,7 +18,7 @@ class UpdateUsers extends Migration
             $table->unsignedSmallInteger('address_id')->length(5);
             $table->string('address', 255)->nullable();
             $table->string('city', 255)->nullable();
-            $table->string('postal_code', 6)->nullable();
+            $table->string('postal_code', 10)->nullable();
             $table->string('phone', 13)->nullable();
         });
         

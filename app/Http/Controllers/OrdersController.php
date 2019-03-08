@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -13,7 +12,6 @@ class OrdersController extends Controller
 
     public function __construct()
     {
-        $this->service = new OrderService;
         $this->pdo = DB::connection()->getPdo();
         $this->viewData = [];
     }
@@ -21,10 +19,14 @@ class OrdersController extends Controller
     private function assignUserOrders($order_id = 0)
     {
         $user_id = (Auth::check()) ? Auth::user()->id : 0 ;
-        $orders = $this->service->getUserOrders($user_id);
+        $orders = \App\Order::where('user_id', '=', $user_id)
+                ->orderBy('order_id', 'desc')
+                ->get();
         
         if ($order_id){
-            $order_details = $this->service->getOrderDetails($user_id, $order_id);
+            $order_details = \App\Order::where('user_id', '=', $user_id)
+                    ->where('order_id', '=', $order_id)
+                    ->first();
         } else {
            $order_details = [];
         }
@@ -32,7 +34,8 @@ class OrdersController extends Controller
         $this->viewData['user_id'] = $user_id;
         $this->viewData['orders'] = $orders;
         $this->viewData['order_details'] = $order_details;
-        $this->viewData['nav_selection'] = 'myorders';
+        
+        return $user_id;
     }
 
     public function show()
@@ -54,17 +57,12 @@ class OrdersController extends Controller
     
     public function cancel(Request $request, $order_id)
     {
-        $this->assignUserOrders();
+        $order = \App\Order::find($order_id);
+        $order->status = 3;
+        $order->save();
         
-        $result = $this->pdo->query("CALL procCancelOrder(" .$this->viewData['user_id']. ", " .$order_id. ")");
-        $procResult = $result->fetch();
-        
-        if ($procResult['returnValue']){
-            $message = 'You have succesfully cancelled your order.';
-        } else {
-            $message = 'Failed to cancel order.';
-        }
-        
+        $message = 'You have succesfully cancelled your order.';
+
         $this->viewData['message'] = $message;
         $this->viewData['nav_selection'] = 'myorders';
         
@@ -73,11 +71,12 @@ class OrdersController extends Controller
     
     public function showCart()
     {
-        $this->assignUserOrders();
-        $cart = $this->service->getCart($this->viewData['user_id']);
+        $user_id = $this->assignUserOrders();
+        $cart = \App\Basket::where('user_id', '=', $user_id)
+                ->first();
         
+        $this->viewData['films'] = $cart ? $cart->films : [] ;
         $this->viewData['nav_selection'] = 'cart';
-        $this->viewData['cart'] = $cart;
         
         return view('my_cart', $this->viewData);
     }
@@ -85,13 +84,34 @@ class OrdersController extends Controller
     public function addToCart(Request $request, $film_id)
     {
         $this->assignUserOrders();
-        $result = $this->pdo->query("CALL procAddToBasket(" .$this->viewData['user_id']. "," .$film_id. ")");
-        $procResult = $result->fetch();
         
-        if ($procResult['returnValue']){
-            $message = 'You have succesfully added item to your basket.';
-        } else {
+        $basket = \App\Basket::where(
+                'user_id', '=', $this->viewData['user_id'])
+                ->first();
+        
+        if (!$basket) {
+            $new_basket = new \App\Basket;
+            $new_basket->user_id = $this->viewData['user_id'];
+            $new_basket->save();
+            
+            $basket = \App\Basket::where(
+                'user_id', '=', $this->viewData['user_id'])
+                ->first();
+        }
+        
+        $message = '';
+        
+        try {
+            $basket_film = new \App\BasketFilm;
+            $basket_film->film_id = $film_id;
+            $basket_film->basket_id = $basket->basket_id;
+            $rty = $basket_film->save();
+        } catch (Exception $ex) {
             $message = 'Failed to add item to your basket.';
+        }
+        
+        if (!$message) {
+            $message = 'You have succesfully added item to your basket.';
         }
         
         $this->viewData['message'] = $message;
@@ -103,14 +123,20 @@ class OrdersController extends Controller
     public function clearCart()
     {
         $this->assignUserOrders();
-        $result = $this->pdo->query("CALL procClearBasket(" .$this->viewData['user_id']. ")");
-        $procResult = $result->fetch();
         
-         if ($procResult['returnValue']){
-            $message = 'You have succesfully removed all items from basket.';
-        } else {
-            $message = 'Failed to clear basket.';
-        }
+        DB::transaction(function () {
+            $basket = \App\Basket::where(
+                'user_id', '=', $this->viewData['user_id'])
+                ->first();
+            
+            \App\BasketFilm::where('basket_id', '=', $basket->basket_id)
+                    ->delete();
+            
+            \App\Basket::where('basket_id', '=', $basket->basket_id)
+                    ->delete();
+        });
+        
+        $message = 'You have succesfully removed all items from basket.';
         
         $this->viewData['message'] = $message;
         $this->viewData['nav_selection'] = 'cart';
@@ -121,14 +147,36 @@ class OrdersController extends Controller
     public function checkout()
     {
         $this->assignUserOrders();
-        $result = $this->pdo->query("CALL procAddOrder(" .$this->viewData['user_id']. ")");
-        $procResult = $result->fetch();
         
-         if ($procResult['returnValue']){
-            $message = 'You have succesfully placed an order.';
-        } else {
-            $message = 'Failed to place order.';
-        }
+        DB::transaction(function () {
+            $user_id = $this->viewData['user_id'];
+            
+            $newOrder = new \App\Order;
+            $newOrder->user_id = $user_id;
+            $newOrder->status = 1;
+            $newOrder->save();
+
+            $order_id = $newOrder->order_id;
+
+            $basket = \App\Basket::where('user_id', $user_id)->first();
+            $basket_id = $basket->basket_id;
+
+            $myFilms = $basket->films;
+            foreach ($myFilms as $film) {
+                $newRow = new \App\OrderFilm;
+                $newRow->order_id = $order_id;
+                $newRow->film_id = $film->film_id;
+                $newRow->save();
+            }
+
+            \App\BasketFilm::where('basket_id', $basket_id)
+                    ->delete();
+
+            \App\Basket::where('basket_id', $basket_id)
+                    ->delete();
+        });
+        
+        $message = 'You have succesfully placed an order.';
         
         $this->viewData['message'] = $message;
         $this->viewData['nav_selection'] = 'cart';

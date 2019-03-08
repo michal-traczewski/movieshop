@@ -14,7 +14,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $order->order_id }}</td>
-                    <td>{{ $order->description }}</td>
+                    <td>{{ $order->statuses->description }}</td>
                     <td>{{ $order->created }}</td>
                     <td><a href="/myorders/{{ $order->order_id }}"><button class="btn btn-primary">Show</button></a></td>
                 </tr>
@@ -23,7 +23,7 @@
     </div>
 @endif
 
-@if (count($order_details))
+@if ($order_details)
     <div class="container order-details">          
         <table class="table table-bordered">
             <tr>
@@ -32,7 +32,7 @@
                 <th>Description</th>
                 <th>Price</th>
             </tr>
-            @foreach($order_details as $detail)
+            @foreach($order_details->films as $detail)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $detail->title }}</td>
