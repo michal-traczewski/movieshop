@@ -105,7 +105,7 @@ class OrdersController extends Controller
             $basket_film = new \App\BasketFilm;
             $basket_film->film_id = $film_id;
             $basket_film->basket_id = $basket->basket_id;
-            $rty = $basket_film->save();
+            $basket_film->save();
         } catch (Exception $ex) {
             $message = 'Failed to add item to your basket.';
         }
