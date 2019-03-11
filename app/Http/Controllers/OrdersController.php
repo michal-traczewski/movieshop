@@ -24,9 +24,7 @@ class OrdersController extends Controller
                 ->get();
         
         if ($order_id){
-            $order_details = \App\Order::where('user_id', '=', $user_id)
-                    ->where('order_id', '=', $order_id)
-                    ->first();
+            $order_details = \App\Order::find($order_id);
         } else {
            $order_details = [];
         }

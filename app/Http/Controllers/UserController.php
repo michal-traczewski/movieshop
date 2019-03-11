@@ -8,7 +8,7 @@ use Auth;
 
 class UserController extends Controller
 {    
-    private $service, $viewData;
+    private $viewData;
     
     public function __construct()
     {
