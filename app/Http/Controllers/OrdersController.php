@@ -81,20 +81,14 @@ class OrdersController extends Controller
     
     public function addToCart(Request $request, $film_id)
     {
-        $this->assignUserOrders();
+        $user_id = $this->assignUserOrders();
         
-        $basket = \App\Basket::where(
-                'user_id', '=', $this->viewData['user_id'])
-                ->first();
-        
-        if (!$basket) {
+        if (!$basket = \App\Basket::where('user_id', $user_id)->first()) {
             $new_basket = new \App\Basket;
-            $new_basket->user_id = $this->viewData['user_id'];
+            $new_basket->user_id = $user_id;
             $new_basket->save();
             
-            $basket = \App\Basket::where(
-                'user_id', '=', $this->viewData['user_id'])
-                ->first();
+            $basket = \App\Basket::where('user_id', $user_id)->first();
         }
         
         $message = '';
@@ -108,9 +102,7 @@ class OrdersController extends Controller
             $message = 'Failed to add item to your basket.';
         }
         
-        if (!$message) {
-            $message = 'You have succesfully added item to your basket.';
-        }
+       $message = $message ?: 'You have succesfully added item to your basket.';
         
         $this->viewData['message'] = $message;
         $this->viewData['nav_selection'] = 'cart';
@@ -121,9 +113,12 @@ class OrdersController extends Controller
     public function clearCart()
     {
         $this->assignUserOrders();
+        $_error = '';
         
-        DB::transaction(function () {
-            $basket = \App\Basket::where(
+        DB::beginTransaction();
+        
+        try {
+        $basket = \App\Basket::where(
                 'user_id', '=', $this->viewData['user_id'])
                 ->first();
             
@@ -132,10 +127,18 @@ class OrdersController extends Controller
             
             \App\Basket::where('basket_id', '=', $basket->basket_id)
                     ->delete();
-        });
-        
-        $message = 'You have succesfully removed all items from basket.';
-        
+        } catch (Exception $e) {
+            $_error = $e->getMessage();
+        }
+
+        if ($_error) {
+            $message = 'Unable ' . $_error;
+            DB::rollBack();
+        } else {
+            $message = 'You have succesfully removed all items from basket.';
+            DB::commit();
+        }
+
         $this->viewData['message'] = $message;
         $this->viewData['nav_selection'] = 'cart';
         
