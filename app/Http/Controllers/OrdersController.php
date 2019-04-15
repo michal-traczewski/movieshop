@@ -132,7 +132,7 @@ class OrdersController extends Controller
         }
 
         if ($_error) {
-            $message = 'Unable ' . $_error;
+            $message = 'Unable to clear basket. ' . $_error;
             DB::rollBack();
         } else {
             $message = 'You have succesfully removed all items from basket.';
@@ -148,8 +148,11 @@ class OrdersController extends Controller
     public function checkout()
     {
         $this->assignUserOrders();
+        $_error = '';
         
-        DB::transaction(function () {
+        DB::beginTransaction();
+        
+        try {
             $user_id = $this->viewData['user_id'];
             
             $newOrder = new \App\Order;
@@ -175,9 +178,17 @@ class OrdersController extends Controller
 
             \App\Basket::where('basket_id', $basket_id)
                     ->delete();
-        });
+        } catch (Exception $e) {
+            $_error = $e->getMessage();
+        }
         
-        $message = 'You have succesfully placed an order.';
+        if ($_error) {
+            $message = 'Unable to place order. ' . $_error;
+            DB::rollBack();
+        } else {
+            $message = 'You have succesfully placed an order.';
+            DB::commit();
+        }
         
         $this->viewData['message'] = $message;
         $this->viewData['nav_selection'] = 'cart';
